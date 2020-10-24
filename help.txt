@@ -1,0 +1,93 @@
+### Create Cluster ###
+
+# Run rke config to create a new cluster.yml
+
+rke config --name cluster.yml
+
+-->
+
+[+] Cluster Level SSH Private Key Path [~/.ssh/id_rsa]: .vagrant/machines/master/virtualbox/private_key
+[+] Number of Hosts [1]: 1
+[+] SSH Address of host (1) [none]: 192.168.100.50
+[+] SSH Port of host (1) [22]: 
+[+] SSH Private Key Path of host () [none]: 
+[-] You have entered empty SSH key path, trying fetch from SSH key parameter
+[+] SSH Private Key of host () [none]: 
+[-] You have entered empty SSH key, defaulting to cluster level SSH key: ~/.ssh/id_rsa
+[+] SSH User of host () [ubuntu]: sysadmin
+[+] Is host () a Control Plane host (y/n)? [y]: y
+[+] Is host () a Worker host (y/n)? [n]: y
+[+] Is host () an etcd host (y/n)? [n]: y
+[+] Override Hostname of host () [none]: master
+[+] Internal IP of host () [none]: 192.168.1.50
+[+] Docker socket path on host () [/var/run/docker.sock]: 
+[+] Network Plugin Type (flannel, calico, weave, canal) [canal]: flannel
+[+] Authentication Strategy [x509]: 
+[+] Authorization Mode (rbac, none) [rbac]: 
+[+] Kubernetes Docker image [rancher/hyperkube:v1.17.4-rancher1]: 
+[+] Cluster domain [cluster.local]: 
+[+] Service Cluster IP Range [10.43.0.0/16]: 
+[+] Enable PodSecurityPolicy [n]: 
+[+] Cluster Network CIDR [10.42.0.0/16]: 
+[+] Cluster DNS Service IP [10.43.0.10]: 
+[+] Add addon manifest URLs or YAML files [no]:
+
+--------
+
+### Create Cluster ###
+
+#curl https://releases.rancher.com/install-docker/18.09.sh | sh
+
+
+rke up
+
+export KUBECONFIG=./kube_config_cluster.yml 
+
+kubectl get pods --all-namespaces
+
+--------
+
+### Backup e Restore ###
+
+#Make snapshot (path: /opt/rke/etcd-snapshots/)
+
+rke etcd snapshot-save --name snapshot-2020-08-10-nightly
+
+#Make Restore
+
+rke etcd snapshot-restore --name snapshot-2020-08-10-nightly
+
+--------
+
+### Update the cluster ###
+
+#List all availables versions of k8s
+
+rke config --list-version --all
+
+edit cluster.yml and create kubernetes_version: "v1.15.5-rancher1-1"
+
+#make snapshot & update
+
+rke up 
+
+--------
+
+### Adding and Removing Nodes ###
+
+edit cluster.yml and Add or Remove the node(s)
+
+and apply
+
+rke up --update-only
+
+
+--------
+
+### Instaling Rancher on Docker/K8s ###
+
+docker run -d --name rancher  --restart=unless-stopped -p 80:80 -p 443:443 rancher/rancher:v2.3.5
+
+https://rancher.com/docs/rancher/v2.x/en/installation/k8s-install/helm-rancher/#1-install-the-required-cli-tools
+
+Acess: https://cert-rke.rancher.space/
